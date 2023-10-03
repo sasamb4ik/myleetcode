@@ -1,0 +1,52 @@
+class Solution
+{
+    public:
+       	// надо написать кнута-морриса-пратта (префикс функцию)
+       	// с помощью префикс-функции определить индекс первого вхождения
+
+        std::vector<int> prefix_func(const std::string &concatenated)
+        {
+            std::vector<int> pref_func(concatenated.size(), 0);
+            int last_prefval = 0, index = 1;
+            while (index < concatenated.size())
+            {
+                if (concatenated[index] == concatenated[last_prefval])
+                {
+                    pref_func[index] = last_prefval + 1;
+                    last_prefval += 1;
+                    ++index;
+                }
+                else if (last_prefval == 0)
+                {
+                    pref_func[index] = 0;
+                    ++index;
+                }
+                else
+                {
+                    last_prefval = pref_func[last_prefval - 1];
+                }
+            }
+            return pref_func;
+        }
+
+    std::string Concatenate(std::string &text, std::string &pattern)
+    {
+        std::string concatenated = pattern + "#" + text;
+        return concatenated;
+    }
+
+    int strStr(string &text, string &pattern)
+    {
+        auto prefix_array = prefix_func(Concatenate(text, pattern));
+        for (int j = 0; j < prefix_array.size(); ++j)
+        {
+            if (prefix_array[j] == pattern.size())
+            {
+                int first_index_in_concatenated = j - prefix_array[j] + 1;
+                int first_index_in_text = first_index_in_concatenated - (pattern.size() + 1);
+                return first_index_in_text;
+            }
+        }
+        return -1;
+    }
+};
