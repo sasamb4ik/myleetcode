@@ -1,0 +1,102 @@
+class Solution {
+public:
+
+    void SiftUp(std::vector<std::pair<char, int>>& MaxHeap, int v) {
+        while (v != 0) {
+            if (MaxHeap[v].first > MaxHeap[(v - 1) / 2].first) {
+                std::swap(MaxHeap[v], MaxHeap[(v - 1) / 2]);
+                v = (v - 1) / 2;
+            } else {
+                break;
+            }
+        }
+    }
+
+    void SiftDown(std::vector<std::pair<char, int>>& MaxHeap, int v) {
+        int n = MaxHeap.size();
+        while (2 * v + 1 < n) {
+            int u = 2 * v + 1;
+            if (2 * v + 2 < n && MaxHeap[2 * v + 2].first > MaxHeap[2 * v + 1].first) {
+                u = 2 * v + 2;
+            }
+            if (MaxHeap[u].first > MaxHeap[v].first) {
+                std::swap(MaxHeap[u], MaxHeap[v]);
+                v = u;
+            } else {
+                break;
+            }
+        } 
+    }
+
+    void Heapify(std::vector<std::pair<char, int>>& array) {
+        for (int i = array.size() - 1; i >= 0; --i) {
+            SiftDown(array, i);
+        }
+    }
+
+    std::pair<char, int> GetMax(std::vector<std::pair<char, int>>& MaxHeap) {
+        return MaxHeap[0];
+    }
+
+    void ExtractMax(std::vector<std::pair<char, int>>& MaxHeap) {;
+        MaxHeap[0] = MaxHeap[MaxHeap.size() - 1];
+        MaxHeap.pop_back();
+        SiftDown(MaxHeap, 0);
+    }
+
+    void Insert(std::vector<std::pair<char, int>>& MaxHeap, std::pair<char, int> value) {
+				MaxHeap.push_back(value);
+        SiftUp(MaxHeap, MaxHeap.size() - 1);
+    }
+
+    void ToVector(std::vector<std::pair<char, int>>& array, std::string s) {
+			std::vector<int> freq(26, 0);
+			for (const auto& item : s) {
+				freq[item - 'a']++;
+			}
+			for (int j = 0; j < freq.size(); ++j) {
+				if (freq[j] > 0) {
+					char letter = char(int('a') + j);
+					array.push_back(std::make_pair(letter, freq[j]));
+				} else {
+					continue;
+				}
+			}
+    }
+
+    string repeatLimitedString(string s, int repeatLimit) {
+        std::string answer;
+        std::vector<std::pair<char, int>> MaxHeap;
+        ToVector(MaxHeap, s);
+        Heapify(MaxHeap);
+
+        while (MaxHeap.size() > 0) {
+            std::pair<char, int> first_max_pair = GetMax(MaxHeap);
+						ExtractMax(MaxHeap);
+
+            int max_frequency = first_max_pair.second;
+
+
+            for (int i = 0; i < repeatLimit && max_frequency > 0; ++i) {
+                char letter = first_max_pair.first;
+                answer.push_back(letter);
+                --max_frequency;
+            }
+
+
+            if (max_frequency > 0 && MaxHeap.size() > 0) {
+							std::pair<char, int> second_max_pair = GetMax(MaxHeap);
+							ExtractMax(MaxHeap);
+
+							answer.push_back(second_max_pair.first);
+
+							if (second_max_pair.second > 1) {
+								Insert(MaxHeap, std::make_pair(second_max_pair.first, second_max_pair.second - 1));
+							}
+
+							Insert(MaxHeap, std::make_pair(first_max_pair.first, max_frequency));
+            }
+        }
+      return answer;
+    }
+};
